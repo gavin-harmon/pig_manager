@@ -118,6 +118,26 @@ def get_blob_service_client(sas_token):
         credential=sas_token
     )
 
+
+def get_filtered_blob_navigator(prefix, key_prefix):
+    """Helper function to create a configured BlobNavigator"""
+    # Make sure the prefix uses forward slashes and ends with a slash
+    normalized_prefix = prefix.replace('\\', '/').rstrip('/') + '/'
+
+    return BlobNavigator(
+        config=BlobNavigatorConfig(
+            account_url=AZURE_ACCOUNT_URL,
+            sas_token=st.session_state.sas_token,
+            allowed_containers=['image-bank-webapp'],
+            path_prefix=normalized_prefix,
+            allowed_extensions=['.xlsx'],  # Only show Excel files
+            show_file_details=True,
+            timezone='US/Eastern',
+            placeholder_text=f"Search for {'PIG' if 'pig' in prefix else 'Salsify'} files..."
+        ),
+        key_prefix=key_prefix
+    )
+
 def show_about_page():
     st.markdown("""
     # Welcome to the Salsify Product Information Manager
@@ -202,22 +222,13 @@ def show_sidebar(con=None):
         # Dynamic sidebar content based on current view
         if st.session_state.current_view == "About":
             pass  # No additional sidebar content for About page
+
         elif st.session_state.current_view == "View Salsify Data":
             show_data_filters()
+
         elif st.session_state.current_view == "PIG Management":
-            # Add BlobNavigator before category management button
-            navigator = BlobNavigator(
-                config=BlobNavigatorConfig(
-                    account_url=AZURE_ACCOUNT_URL,
-                    sas_token=st.session_state.sas_token,
-                    allowed_containers=['image-bank-webapp'],
-                    path_prefix='pig-repository/',
-                    placeholder_text="Search for PIG files...",
-                    show_file_details=True,
-                    timezone='US/Eastern',
-                ),
-                key_prefix="pig_nav"
-            )
+            # Use the filtered navigator
+            navigator = get_filtered_blob_navigator('pig-repository/', 'pig_nav')
             selected_file = navigator.render_navigation()
 
             # Add Load Selected PIG button
@@ -241,32 +252,16 @@ def show_sidebar(con=None):
                 st.session_state.show_category_manager = True
 
         elif st.session_state.current_view == "Upload To Salsify":
-            # Add BlobNavigator for salsify-sftp directory
-            navigator = BlobNavigator(
-                config=BlobNavigatorConfig(
-                    account_url=AZURE_ACCOUNT_URL,
-                    sas_token=st.session_state.sas_token,
-                    allowed_containers=['image-bank-webapp'],
-                    path_prefix='salsify-sftp/',
-                    placeholder_text="Search for Salsify files...",
-                    show_file_details=True,
-                    timezone='US/Eastern',
-                ),
-                key_prefix="salsify_nav"
-            )
+            # Use the filtered navigator
+            navigator = get_filtered_blob_navigator('salsify-sftp/', 'salsify_nav')
             selected_file = navigator.render_navigation()
 
-            # Add buttons for both file and session preview
-            #col1, col2 = st.columns(2)
-
-            #with col1:
-                # Preview selected file button
+            # Add buttons for preview options
             if selected_file:
                 if st.button("Preview Selected File", use_container_width=True):
                     try:
                         file_content = navigator.load_file_content(selected_file)
                         if file_content:
-                            # Convert bytes to DataFrame and store in session state
                             file_obj = io.BytesIO(file_content)
                             df = pd.read_excel(file_obj)
                             st.session_state.preview_df = df
@@ -276,17 +271,14 @@ def show_sidebar(con=None):
                     except Exception as e:
                         st.error(f"Error loading file: {str(e)}")
 
-            #with col2:
-                # Preview session data button
             if st.button("Preview Session Records", use_container_width=True):
                 try:
                     if con is not None:
-                        # Get current session data from DuckDB
                         session_df = con.execute("""
-                           SELECT DISTINCT * EXCLUDE(Status) 
-                           FROM pig_data 
-                           ORDER BY Item
-                       """).df()
+                            SELECT DISTINCT * EXCLUDE(Status) 
+                            FROM pig_data 
+                            ORDER BY Item
+                        """).df()
 
                         st.session_state.preview_df = session_df
                         st.session_state.preview_filename = "Current Session Data"
@@ -312,11 +304,12 @@ def show_sidebar(con=None):
                 filter_interface = DataFilter(
                     data=st.session_state.preview_df,
                     config=filter_config,
-                    session_key="salsify_sidebar_filter"  # Changed key to be unique
+                    session_key="salsify_sidebar_filter"
                 )
 
                 # Render filter controls in sidebar and store results in session state
                 st.session_state.filtered_preview_df = filter_interface.render()
+
 def show_data_filters():
     """Show data filters in sidebar for View Salsify Data"""
 
@@ -707,7 +700,7 @@ def show_upload_interface(con):
                     shared_container_client = blob_service_client.get_container_client("image-bank-webapp")
 
                     # Set filename according to specified format
-                    blob_name = f"pig-repository\Product Information Guide - {item_number}.xlsx"
+                    blob_name = f"pig-repositor/Product Information Guide - {item_number}.xlsx"
 
                     # Upload file to shared-pigs container
                     blob_client = shared_container_client.get_blob_client(blob_name)
