@@ -14,7 +14,7 @@ from azure.storage.blob import BlobServiceClient
 from configparser import ConfigParser
 
 # Import feature modules
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 from streamlit_feature_catalog.features.table_filters.var_002 import DataFilter, DataFilterConfig
 from streamlit_feature_catalog.features.blob_view.var_001 import BlobViewManager
 from streamlit_feature_catalog.features.category_manager.var_001 import CategoryManager, CategoryManagerConfig
@@ -1213,9 +1213,8 @@ def main():
     initialize_session_state()
 
     if not st.session_state.authenticated:
-        st.write("Please enter your Azure Storage SAS token to access the application.")
-        sas_token = st.text_input("Enter your access key:", type="password")
-        if st.button("Login"):
+        sas_token = st.text_input("Enter your code:", type="password")
+        if st.button("Enter"):
             if validate_sas(sas_token):
                 st.session_state.authenticated = True
                 st.session_state.sas_token = sas_token
