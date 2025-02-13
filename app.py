@@ -684,8 +684,9 @@ def show_upload_interface(con):
                     )
                     shared_container_client = blob_service_client.get_container_client("image-bank-webapp")
                 
-                    # Set filename according to specified format
-                    blob_name = f"pig-repository/Product Information Guide - {item_number}.xlsx"
+                    # Set filename using new format
+                    item_number = preview_df.iloc[2, 1]  # B3 contains the Item number
+                    blob_name = f"pig-repository/{item_number} - PIG.xlsx"  # New naming format
                 
                     # Upload file to container
                     blob_client = shared_container_client.get_blob_client(blob_name)
@@ -916,23 +917,23 @@ def show_upload_interface(con):
                                 credential=st.session_state.sas_token
                             )
                             shared_container_client = blob_service_client.get_container_client("image-bank-webapp")
-                
+                        
                             # Get the item number for the filename
                             item_number = edited_df['Item'].iloc[0]
                             
-                            # Set filename according to specified format
-                            blob_name = f"pig-repository/Product Information Guide - {item_number}.xlsx"
-                
+                            # Set filename using new format
+                            blob_name = f"pig-repository/{item_number} - PIG.xlsx"  # New naming format
+                        
                             # Save edited data to Excel in memory
                             excel_buffer = io.BytesIO()
                             file_to_process.seek(0)  # Reset file pointer
                             excel_buffer.write(file_to_process.read())
                             excel_buffer.seek(0)
-                
+                        
                             # Upload to blob storage
                             blob_client = shared_container_client.get_blob_client(blob_name)
                             blob_client.upload_blob(excel_buffer.getvalue(), overwrite=True)
-                
+                        
                             st.success(f"✅ Successfully saved {blob_name} to PIG Repository!")
                         except Exception as e:
                             st.error(f"Error saving to PIG Repository: {str(e)}")
