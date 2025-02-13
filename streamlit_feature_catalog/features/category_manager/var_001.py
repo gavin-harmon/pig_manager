@@ -1,4 +1,6 @@
 # In streamlit_feature_catalog/features/category_manager/var_001.py
+## had to edit this because I did something dumb
+
 
 from dataclasses import dataclass
 from typing import List, Optional, Dict, Callable
@@ -28,9 +30,9 @@ class CategoryManagerConfig:
 class CategoryManager:
     """Generic manager for categorical values with inline editing"""
 
-    def __init__(self, config: CategoryManagerConfig, connection_string: Optional[str] = None):
+    def __init__(self, config: CategoryManagerConfig, sas_token: Optional[str] = None):
         self.config = config
-        self.connection_string = connection_string
+        self.sas_token = sas_token
         self._df = None
         self._metadata_columns = ['created_at', 'created_by', 'updated_at']
         self._initialize_session_state()
@@ -101,11 +103,14 @@ class CategoryManager:
             raise RuntimeError(f"Failed to write data: {str(e)}")
 
     def load_values(self) -> bool:
-        """Load values from source with proper error handling"""
+    """Load values from source with proper error handling"""
         try:
-            if self.connection_string:
+            if self.sas_token:
                 container_name, blob_path = self.config.source_path.split('/', 1)
-                blob_service_client = BlobServiceClient.from_connection_string(self.connection_string)
+                blob_service_client = BlobServiceClient(
+                    account_url="https://daorgshare.blob.core.windows.net",
+                    credential=self.sas_token
+                )
                 container_client = blob_service_client.get_container_client(container_name)
                 blob_client = container_client.get_blob_client(blob_path)
                 content = blob_client.download_blob().readall()
@@ -114,10 +119,10 @@ class CategoryManager:
                 response = requests.get(self.config.source_path)
                 response.raise_for_status()
                 content = response.content
-
+    
             self._df = self._read_data(content)
             return bool(len(self._df))
-
+    
         except Exception as e:
             logging.error(f"Error loading values: {str(e)}")
             st.error(f"Failed to load values: {str(e)}")
@@ -128,18 +133,21 @@ class CategoryManager:
         try:
             if self._df is None or len(self._df) == 0:
                 raise ValueError("No data to save")
-
+    
             # Update metadata
             if self.config.track_changes:
                 self._df['updated_at'] = datetime.now()
-
+    
             # Save to appropriate location
-            if self.connection_string:
+            if self.sas_token:
                 container_name, blob_path = self.config.source_path.split('/', 1)
-                blob_service_client = BlobServiceClient.from_connection_string(self.connection_string)
+                blob_service_client = BlobServiceClient(
+                    account_url="https://daorgshare.blob.core.windows.net",
+                    credential=self.sas_token
+                )
                 container_client = blob_service_client.get_container_client(container_name)
                 blob_client = container_client.get_blob_client(blob_path)
-
+    
                 content = self._write_data(self._df)
                 blob_client.upload_blob(content, overwrite=True)
             else:
@@ -147,10 +155,10 @@ class CategoryManager:
                 with open(self.config.source_path, 'wb') as f:
                     content = self._write_data(self._df)
                     f.write(content)
-
+    
             st.session_state.pending_changes = False
             return True
-
+    
         except Exception as e:
             logging.error(f"Error saving values: {str(e)}")
             st.error(f"Failed to save values: {str(e)}")
