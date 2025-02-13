@@ -140,54 +140,52 @@ def get_filtered_blob_navigator(prefix, key_prefix):
 
 def show_about_page():
     st.markdown("""
-    # Welcome to the Salsify Product Information Manager
+    # Salsify Product Information Manager
 
-This tool helps you manage product information and keep Salsify up to date. Think of it as your central hub for handling product data.
+    ## Quick Start Guide
+    
+    ### New PIG Upload Process:
+    1. Navigate to "**PIG Management**" in the sidebar
+    2. Upload your PIG Excel file using the file uploader
+    3. Click "**Update in-app Salsify view**" to process your PIG
+    4. Navigate to "**Upload to Salsify**" in the sidebar
+    5. Click "**Preview Selected File**" to review your changes
+    6. Click "**Upload to Salsify**" to finalize and upload
 
-## What You Can Do Here
+    ## Key Features
 
-### 📊 View Product Data
-- Browse and search through all your product information
-- Filter products by category, status, or other fields
-- Export data for offline use
-- See quick statistics about your product catalog
+    ### PIG Management
+    - Upload and process new Product Information Guides (PIGs)
+    - Preview and edit content before saving
+    - Automatic backup of PIGs in the repository
+    - Access previous versions when needed
 
-### 📝 Work with Product Information Guides (PIGs)
-- Upload new PIGs
-- Preview and edit content before saving
-- Store PIGs in a central repository
-- Access previous versions when needed
+    ### Data Viewing and Filtering
+    - Browse through all product information
+    - Filter products by category or status
+    - Export filtered data for offline use
+    - View category statistics and distributions
 
-### 🔄 Manage Salsify Updates
-- Preview data before uploading to Salsify
-- Review historical uploads
-- Create automatic backups
-- Update Salsify with confidence
+    ### Salsify Integration
+    - Preview changes before uploading
+    - Automatic backup creation
+    - Direct upload to Salsify SFTP
+    - Historical version tracking
 
-## Quick Tips
-
-- Always preview your data before uploading
-- Use filters to find specific products quickly
-- Check the backup history if you need to reference past versions
-- Remember to select the right category when processing new PIGs
-
-## Need Help?
-
-If you have questions or run into issues:
-- Contact gavin.harmon@hamiltonbeach.com for technical support
-- Reach out to your product team lead for content questions
-- Check with your Salsify administrator for upload permissions
-
-_This tool is regularly updated to make managing product information easier and more efficient._
+    ## Need Help?
+    - Technical support: gavin.harmon@hamiltonbeach.com
+    - Product team questions: Contact your team lead
+    - Salsify access: Check with your Salsify administrator
     """)
 
     # Add usage tips in an expander
-    with st.expander("Usage Tips"):
+    with st.expander("Best Practices"):
         st.markdown("""
-        - Always validate data before uploading to Salsify
-        - Use filters to find specific products quickly
-        - Check category assignments before saving
-        - Download data for offline analysis when needed
+        - Always preview your data before uploading to Salsify
+        - Check category assignments carefully
+        - Use filters to verify your changes
+        - Download backups of important data
+        - Verify PIG content in preview before processing
         """)
 
     return True
