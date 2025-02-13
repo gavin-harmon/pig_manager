@@ -520,32 +520,27 @@ def show_category_management():
     )
 
     try:
-        # Use the appropriate blob path based on selection
         blob_path = (
             'image-bank-webapp/app-data/validation/category_values.csv'
             if data_type == "Categories"
             else 'image-bank-webapp/app-data/validation/status_values.csv'
         )
 
-        # Convert SAS token to a connection string format
-        account_url = "https://daorgshare.blob.core.windows.net"
-        connection_string = f"BlobEndpoint={account_url};SharedAccessSignature={st.session_state.sas_token.lstrip('?')}"
-
-        # Configure using var_001 format
-        config = CategoryManagerConfig(
-            source_path=blob_path,
-            file_type="csv",
-            require_unique_rows=True
+        # Remove connection string creation and use SAS token directly
+        manager = CategoryManager(
+            config=CategoryManagerConfig(
+                source_path=blob_path,
+                file_type="csv",
+                require_unique_rows=True
+            ),
+            sas_token=st.session_state.sas_token  # Pass SAS token instead of connection string
         )
-
-        manager = CategoryManager(config=config, connection_string=connection_string)
         manager.render_manager()
 
     except Exception as e:
         st.error(f"Error in reference data management: {str(e)}")
-        st.info("Please check your access token and try again.")
 
-def download_all_files(connection_string):
+def download_all_files(sas_token):  # Change parameter name from connection_string to sas_token
     """Download all required files from blob storage"""
     status_files = {
         'active': 'app-data/pig-info-table.parquet/Status=active/data_0.parquet',
@@ -553,19 +548,13 @@ def download_all_files(connection_string):
         'Obsolete': 'app-data/pig-info-table.parquet/Status=Obsolete/data_0.parquet'
     }
 
-    reference_files = {
-        'category': 'image-bank-webapp/app-data/validation/category_values.csv',
-        'status': 'image-bank-webapp/app-data/validation/status_values.csv'
-    }
-
-    # Download PIG data files
     for status, blob_path in status_files.items():
         success = download_from_blob(
-            connection_string,
+            sas_token,
             "image-bank-webapp",
             blob_path,
             "local_data",
-            f"pig-info-table-{status}.parquet"  # Added fifth parameter
+            f"pig-info-table-{status}.parquet"
         )
         if not success:
             return False
@@ -975,7 +964,7 @@ def setup_local_directories():
     return base_dir, pig_data_dir, reference_dir
 
 
-def load_essential_data(connection_string):
+def load_essential_data(sas_token):
     """Load initial essential data (Active status and reference data)"""
     base_dir, pig_data_dir, reference_dir = setup_local_directories()
 
@@ -985,11 +974,11 @@ def load_essential_data(connection_string):
 
     # Download active status data
     success, active_path = download_from_blob(
-        connection_string,
+        sas_token,  # Use sas_token instead of connection_string
         "image-bank-webapp",
         "app-data/pig-info-table.parquet/Status=active/data_0.parquet",
         pig_data_dir,
-        "data_0.parquet"  # Added fifth parameter
+        "data_0.parquet"
     )
     if not success:
         return False, None, None
@@ -1038,8 +1027,7 @@ def load_essential_data(connection_string):
 
 
 
-def load_additional_data(connection_string, con, pig_data_dir):
-    """Load additional status data (New and Obsolete)"""
+def load_additional_data(sas_token, con, pig_data_dir):  # Change parameter name
     try:
         additional_statuses = {
             'New': 'app-data/pig-info-table.parquet/Status=New/data_0.parquet',
@@ -1048,7 +1036,7 @@ def load_additional_data(connection_string, con, pig_data_dir):
 
         for status, blob_path in additional_statuses.items():
             success, path = download_from_blob(
-                connection_string,
+                sas_token,  # Use sas_token instead of connection_string
                 "image-bank-webapp",
                 blob_path,
                 pig_data_dir,
@@ -1202,7 +1190,9 @@ def show_salsify_upload(con):
     st.subheader("Upload to Salsify")
     col1, col2 = st.columns([1, 3])
     with col1:
+        
         if st.button("Upload to Salsify", type="primary"):
+            
             upload_to_salsify(con, st.session_state.sas_token)
             
 def validate_sas(sas_token):
