@@ -149,7 +149,7 @@ def show_about_page():
     2. Upload your PIG Excel file using the file uploader
     3. Click "**Update in-app Salsify view**" to process your PIG
     4. Navigate to "**Upload to Salsify**" in the sidebar
-    5. Click "**Preview Selected File**" to review your changes
+    5. Click "**Preview Session Records**" to review your changes
     6. Click "**Upload to Salsify**" to finalize and upload
 
     ## Key Features
