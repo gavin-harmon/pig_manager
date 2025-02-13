@@ -902,10 +902,13 @@ def show_upload_interface(con):
                         connection_string = config['daorgshare']['connection_string']
 
                         # Upload the file
-                        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+                        blob_service_client = BlobServiceClient(
+                            account_url=AZURE_ACCOUNT_URL,
+                            credential=st.session_state.sas_token
+                        )
                         container_client = blob_service_client.get_container_client("image-bank-webapp")
                         blob_path = f"app-data/pig-info-table.parquet/Status={status}/data_0.parquet"
-
+                        
                         with open(f"local_data/pig-info-table/Status={status}/data_0.parquet", "rb") as data:
                             container_client.upload_blob(
                                 name=blob_path,
@@ -1090,7 +1093,10 @@ def upload_to_salsify(con, connection_string):
 
         # Step 3: Create backup of existing file in Azure
         progress_container.info("Creating Azure backup...")
-        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        blob_service_client = BlobServiceClient(
+            account_url=AZURE_ACCOUNT_URL,
+            credential=st.session_state.sas_token
+                    )
         container_client = blob_service_client.get_container_client("image-bank-webapp")
 
         # Generate timestamp for backup
