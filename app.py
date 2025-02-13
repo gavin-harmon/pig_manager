@@ -700,7 +700,7 @@ def show_upload_interface(con):
                     shared_container_client = blob_service_client.get_container_client("image-bank-webapp")
 
                     # Set filename according to specified format
-                    blob_name = f"pig-repositor/Product Information Guide - {item_number}.xlsx"
+                    blob_name = f"pig-repository/Product Information Guide - {item_number}.xlsx"
 
                     # Upload file to shared-pigs container
                     blob_client = shared_container_client.get_blob_client(blob_name)
