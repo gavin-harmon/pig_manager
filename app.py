@@ -688,26 +688,22 @@ def show_upload_interface(con):
             # Add save to repository button
             if st.button("Save xlsx to PIG Repository"):
                 try:
-                    # Get connection string
-                    config = ConfigParser()
-                    app_path = os.path.realpath(os.path.join(os.path.abspath(''), ".."))
-                    config_file = os.path.join(app_path, "resources", 'config.ini')
-                    config.read(config_file)
-                    connection_string = config['daorgshare']['connection_string']
-
-                    # Create blob client for shared-pigs container
-                    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+                    # Create blob client using SAS token
+                    blob_service_client = BlobServiceClient(
+                        account_url=AZURE_ACCOUNT_URL,
+                        credential=st.session_state.sas_token
+                    )
                     shared_container_client = blob_service_client.get_container_client("image-bank-webapp")
-
+                
                     # Set filename according to specified format
                     blob_name = f"pig-repository/Product Information Guide - {item_number}.xlsx"
-
-                    # Upload file to shared-pigs container
+                
+                    # Upload file to container
                     blob_client = shared_container_client.get_blob_client(blob_name)
                     file_to_process.seek(0)  # Reset file pointer
                     blob_client.upload_blob(file_to_process.read(), overwrite=True)
                     file_to_process.seek(0)  # Reset file pointer for further processing
-
+                
                     st.success(f"✅ Successfully saved {blob_name} to PIG Repository!")
                 except Exception as e:
                     st.error(f"Error saving to PIG Repository: {str(e)}")
