@@ -888,7 +888,6 @@ def show_upload_interface(con):
                         app_path = os.path.realpath(os.path.join(os.path.abspath(''), ".."))
                         config_file = os.path.join(app_path, "resources", 'config.ini')
                         config.read(config_file)
-                        connection_string = config['daorgshare']['connection_string']
 
                         # Upload the file
                         blob_service_client = BlobServiceClient(
@@ -991,11 +990,11 @@ def load_essential_data(sas_token):
 
     for ref_type, blob_path in reference_files.items():
         success, _ = download_from_blob(
-            connection_string,
+            sas_token,  # Changed to sas_token
             "image-bank-webapp",
             blob_path,
             reference_dir,
-            f"{ref_type}_values.csv"  # Added fifth parameter
+            f"{ref_type}_values.csv"
         )
         if not success:
             return False, None, None
@@ -1203,9 +1202,10 @@ def validate_sas(sas_token):
 
         # Create the blob service client specifically for the image-bank-webapp container
         container_url = f"https://daorgshare.blob.core.windows.net/image-bank-webapp?{sas_token}"
-        container_client = BlobServiceClient.from_connection_string(
-            f"BlobEndpoint=https://daorgshare.blob.core.windows.net;SharedAccessSignature={sas_token}"
-        ).get_container_client("image-bank-webapp")
+        container_client = BlobServiceClient(
+                                    account_url=AZURE_ACCOUNT_URL,
+                                    credential=sas_token
+                                            ).get_container_client("image-bank-webapp")
 
         # Try to list blobs in the container (a container-level operation)
         next(container_client.list_blobs(), None)
