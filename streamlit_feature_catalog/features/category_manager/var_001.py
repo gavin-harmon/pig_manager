@@ -103,7 +103,7 @@ class CategoryManager:
             raise RuntimeError(f"Failed to write data: {str(e)}")
 
     def load_values(self) -> bool:
-    """Load values from source with proper error handling"""
+        """Load values from source with proper error handling"""
         try:
             if self.sas_token:
                 container_name, blob_path = self.config.source_path.split('/', 1)
