@@ -250,6 +250,19 @@ def show_sidebar(con=None):
 
             if st.button("Manage Categories", use_container_width=True):
                 st.session_state.show_category_manager = True
+                
+            if 'uploaded_pig' in st.session_state and st.session_state.uploaded_pig:
+                st.divider()
+                preview_df = pd.read_excel(st.session_state.uploaded_pig, header=None)
+                item_number = preview_df.iloc[2, 1]  # B3 contains the Item number
+                st.session_state.uploaded_pig.seek(0)
+                st.download_button(
+                    label=f"📥 Download {item_number} - PIG.xlsx",
+                    data=st.session_state.uploaded_pig.getvalue(),
+                    file_name=f"{item_number} - PIG.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True
+                )                
 
         elif st.session_state.current_view == "Upload To Salsify":
             # Use the filtered navigator
@@ -309,6 +322,20 @@ def show_sidebar(con=None):
 
                 # Render filter controls in sidebar and store results in session state
                 st.session_state.filtered_preview_df = filter_interface.render()
+
+                st.divider()
+                excel_buffer = io.BytesIO()
+                st.session_state.preview_df.to_excel(excel_buffer, index=False, engine='openpyxl')
+                excel_buffer.seek(0)
+                
+                st.download_button(
+                    label="📥 Download Salsify Data",
+                    data=excel_buffer.getvalue(),
+                    file_name="salsify_export.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True
+                )
+
 
 def show_data_filters():
     """Show data filters in sidebar for View Salsify Data"""
