@@ -1068,7 +1068,7 @@ def load_additional_data(connection_string, con, pig_data_dir):
         return False
 
 # Add new function to handle Salsify upload
-def upload_to_salsify(con, connection_string):
+def upload_to_salsify(con, sas_token):
     """
     Read parquet data, create Excel file, upload to Azure blob storage and Salsify SFTP
     with history backup
@@ -1095,8 +1095,8 @@ def upload_to_salsify(con, connection_string):
         progress_container.info("Creating Azure backup...")
         blob_service_client = BlobServiceClient(
             account_url=AZURE_ACCOUNT_URL,
-            credential=st.session_state.sas_token
-                    )
+            credential=sas_token
+        )
         container_client = blob_service_client.get_container_client("image-bank-webapp")
 
         # Generate timestamp for backup
@@ -1203,13 +1203,8 @@ def show_salsify_upload(con):
     col1, col2 = st.columns([1, 3])
     with col1:
         if st.button("Upload to Salsify", type="primary"):
-            config = ConfigParser()
-            app_path = os.path.realpath(os.path.join(os.path.abspath(''), ".."))
-            config_file = os.path.join(app_path, "resources", 'config.ini')
-            config.read(config_file)
-            connection_string = config['daorgshare']['connection_string']
-
-            upload_to_salsify(con, connection_string)
+            upload_to_salsify(con, st.session_state.sas_token)
+            
 def validate_sas(sas_token):
     """Validate SAS token by attempting a container-level blob operation"""
     try:
