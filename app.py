@@ -528,13 +528,13 @@ def show_category_management():
 
         # Remove connection string creation and use SAS token directly
         manager = CategoryManager(
-            config=CategoryManagerConfig(
-                source_path=blob_path,
-                file_type="csv",
-                require_unique_rows=True
-            ),
-            sas_token=st.session_state.sas_token  # Pass SAS token instead of connection string
-        )
+                config=CategoryManagerConfig(
+                    source_path=blob_path,
+                    file_type="csv",
+                    require_unique_rows=True
+                ),
+                sas_token=st.session_state.sas_token  # Pass SAS token here
+            )
         manager.render_manager()
 
     except Exception as e:
