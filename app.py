@@ -1154,7 +1154,7 @@ def upload_to_salsify(con, sas_token):
 
             # Upload the file
             with open(temp_file_path, "rb") as file:
-                ftp_server.storbinary(f"STOR salsify_test.xlsx", file)
+                ftp_server.storbinary(f"STOR salsify.xlsx", file)
 
             # Close FTP connection
             ftp_server.quit()
