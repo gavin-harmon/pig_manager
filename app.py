@@ -1220,13 +1220,13 @@ def upload_to_salsify(con, sas_token):
         
         if vendor_data is not None and not vendor_data.empty:
             # Get all unique items
-            all_items = pd.Series(pd.concat([session_df['Item'], vendor_data['Item']]).unique())
+            all_items = pd.Series(pd.concat([display_df['Item'], vendor_data['Item']]).unique())
             
             # Create a merged dataframe with all items
             merged_df = pd.DataFrame({'Item': all_items})
             
             # Left join with session data (columns A-AS)
-            merged_df = merged_df.merge(session_df[['Item', 'Category', 'About', 'Bullet Copy', 'Heading', 'Spanish Bullet Copy', 'Subheading', 'Enhanced Product Name', 'Bullet Copy 1', 'Bullet Copy 2', 'Bullet Copy 3', 'Bullet Copy 4', 'Bullet Copy 5', 'Bullet Copy 6', 'Bullet Copy 7', 'Bullet Copy 8', 'Bullet Copy 9', 'Bullet Copy 10', 'Feature/Benefit 1', 'Feature/Benefit 2', 'FeatureBenefit 3', 'Feature/Benefit 4', 'FeatureBenefit 5', 'Feature/Benefit 6', 'Feature/Benefit 7', 'Feature/Benefit 8', 'Feature/Benefit 9', 'Feature/Benefit 10', 'Keywords', 'Long Description', 'Product ID', 'Product Title', 'SEO Enhanced Bullets 1', 'SEO Enhanced Bullets 2', 'SEO Enhanced Bullets 3', 'SEO Enhanced Bullets 4', 'SEO Enhanced Bullets 5', 'SEO Enhanced Bullets 6', 'SEO Enhanced Bullets 7', 'SEO Enhanced Bullets 8', 'SEO Enhanced Bullets 9', 'SEO Enhanced Bullets 10', 'Short Description', 'USP', 'Brand']], how='left', on='Item')
+            merged_df = merged_df.merge(display_df[['Item', 'Category', 'About', 'Bullet Copy', 'Heading', 'Spanish Bullet Copy', 'Subheading', 'Enhanced Product Name', 'Bullet Copy 1', 'Bullet Copy 2', 'Bullet Copy 3', 'Bullet Copy 4', 'Bullet Copy 5', 'Bullet Copy 6', 'Bullet Copy 7', 'Bullet Copy 8', 'Bullet Copy 9', 'Bullet Copy 10', 'Feature/Benefit 1', 'Feature/Benefit 2', 'FeatureBenefit 3', 'Feature/Benefit 4', 'FeatureBenefit 5', 'Feature/Benefit 6', 'Feature/Benefit 7', 'Feature/Benefit 8', 'Feature/Benefit 9', 'Feature/Benefit 10', 'Keywords', 'Long Description', 'Product ID', 'Product Title', 'SEO Enhanced Bullets 1', 'SEO Enhanced Bullets 2', 'SEO Enhanced Bullets 3', 'SEO Enhanced Bullets 4', 'SEO Enhanced Bullets 5', 'SEO Enhanced Bullets 6', 'SEO Enhanced Bullets 7', 'SEO Enhanced Bullets 8', 'SEO Enhanced Bullets 9', 'SEO Enhanced Bullets 10', 'Short Description', 'USP', 'Brand']], how='left', on='Item')
             
             # Left join with vendor data for AT-BO columns
             merged_df = merged_df.merge( vendor_data[['Item', 'Image Assets', 'PDF Assets', 'Video Assets', 'VPA 1', 'VPA 2', 'VPA 3', 'VPA 4', 'VPA 5', 'VPA 6', 'VPA 7', 'VPA 8', 'VPA 9', 'VPA 10', 'VPA 11', 'VPA 12', 'VPA 13', 'VPA 14', 'VPA 15', 'VPA 16', 'VPA 17', 'VPA 18', 'VPA 19']], how='left', on='Item')
@@ -1235,7 +1235,7 @@ def upload_to_salsify(con, sas_token):
             merged_df = merged_df.fillna('')
         else:
             # Just use session data if vendor data is not available
-            merged_df = session_df.copy()
+            merged_df = display_df.copy()
             merged_df = merged_df.fillna('')
         
         # Step 4: Create Excel file in memory
