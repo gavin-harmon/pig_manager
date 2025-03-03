@@ -1219,32 +1219,17 @@ def upload_to_salsify(con, sas_token):
         progress_container.info("Merging data...")
         
         if vendor_data is not None and not vendor_data.empty:
-            # First, ensure consistent data types and formatting for the 'Item' column in all dataframes
-            session_df['Item'] = session_df['Item'].astype(str).str.strip()
-            vendor_data['Item'] = vendor_data['Item'].astype(str).str.strip()
-            
             # Get all unique items
             all_items = pd.Series(pd.concat([session_df['Item'], vendor_data['Item']]).unique())
             
-            # Add some diagnostic info to help debug
-            progress_container.info(f"Total unique items: {len(all_items)}")
-            progress_container.info(f"Items in session_df: {len(session_df)}")
-            progress_container.info(f"Items in vendor_data: {len(vendor_data)}")
-            
-            # Create a merged dataframe with all items - also convert to string
+            # Create a merged dataframe with all items
             merged_df = pd.DataFrame({'Item': all_items})
-            merged_df['Item'] = merged_df['Item'].astype(str).str.strip()
             
-            # Left join with session data (columns A-AS) with validated 'Item' column
-            merged_df = pd.merge(merged_df, session_df, on='Item', how='left', validate='1:1')
-            
-            # Check if we lost any data
-            missing_count = merged_df.isnull().any(axis=1).sum()
-            if missing_count > 0:
-                progress_container.warning(f"Warning: {missing_count} items had missing data after session merge")
+            # Left join with session data (columns A-AS)
+            merged_df = pd.merge(merged_df, session_df[['Item', 'Category', 'About', 'Bullet Copy', 'Heading', 'Spanish Bullet Copy', 'Subheading', 'Enhanced Product Name', 'Bullet Copy 1', 'Bullet Copy 2', 'Bullet Copy 3', 'Bullet Copy 4', 'Bullet Copy 5', 'Bullet Copy 6', 'Bullet Copy 7', 'Bullet Copy 8', 'Bullet Copy 9', 'Bullet Copy 10', 'Feature/Benefit 1', 'Feature/Benefit 2', 'FeatureBenefit 3', 'Feature/Benefit 4', 'FeatureBenefit 5', 'Feature/Benefit 6', 'Feature/Benefit 7', 'Feature/Benefit 8', 'Feature/Benefit 9', 'Feature/Benefit 10', 'Keywords', 'Long Description', 'Product ID', 'Product Title', 'SEO Enhanced Bullets 1', 'SEO Enhanced Bullets 2', 'SEO Enhanced Bullets 3', 'SEO Enhanced Bullets 4', 'SEO Enhanced Bullets 5', 'SEO Enhanced Bullets 6', 'SEO Enhanced Bullets 7', 'SEO Enhanced Bullets 8', 'SEO Enhanced Bullets 9', 'SEO Enhanced Bullets 10', 'Short Description', 'USP', 'Brand']], on='Item', how='left')
             
             # Left join with vendor data for AT-BO columns
-            merged_df = pd.merge(merged_df, vendor_data, on='Item', how='left')
+            merged_df = pd.merge(merged_df, vendor_data[['Item', 'Image Assets', 'PDF Assets', 'Video Assets', 'VPA 1', 'VPA 2', 'VPA 3', 'VPA 4', 'VPA 5', 'VPA 6', 'VPA 7', 'VPA 8', 'VPA 9', 'VPA 10', 'VPA 11', 'VPA 12', 'VPA 13', 'VPA 14', 'VPA 15', 'VPA 16', 'VPA 17', 'VPA 18', 'VPA 19']], on='Item', how='left')
             
             # Fill NA values with empty strings
             merged_df = merged_df.fillna('')
