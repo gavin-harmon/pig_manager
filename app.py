@@ -1029,7 +1029,7 @@ def load_essential_data(sas_token):
     success, active_path = download_from_blob(
         sas_token,  # Use sas_token instead of connection_string
         st.secrets["AZ_CONTAINER"],
-        "app-data/pig-info-table.parquet/Status=active/data_0.parquet",
+        "salsify-product-info/app-data/pig-info-table.parquet/Status=active/data_0.parquet",
         pig_data_dir,
         "data_0.parquet"
     )
@@ -1326,26 +1326,29 @@ def upload_to_salsify(con, sas_token):
         return False
             
 def validate_sas(sas_token):
-    """Validate SAS token by attempting a container-level blob operation"""
+    """Validate SAS token by attempting a directory-level blob operation"""
     try:
-        # Ensure SAS token format is consistent
-        # If it starts with '?', keep it as is for credential
-        # If it doesn't start with '?', we don't need to add it when used as credential
-        
         # Create the blob service client
         blob_service_client = BlobServiceClient(
             account_url=AZURE_ACCOUNT_URL,
-            credential=sas_token  # Use the token as-is
+            credential=sas_token
         )
         
-        # Try to list blobs in the container
+        # Try to list blobs in a specific directory we know exists
+        # Use a hardcoded path to a directory we know should exist
         container_client = blob_service_client.get_container_client(st.secrets["AZ_CONTAINER"])
-        next(container_client.list_blobs(), None)
+        blobs = container_client.list_blobs(name_starts_with="salsify-product-info/")
+        next(blobs, None)  # Just try to get the first blob
+            
         return True
 
     except Exception as e:
         st.error(f"SAS validation error: {str(e)}")
         return False
+
+    except Exception as e:
+        st.error(f"SAS validation error: {str(e)}")
+        return False, None
 
 
 def main():
