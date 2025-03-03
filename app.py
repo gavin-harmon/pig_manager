@@ -1257,12 +1257,12 @@ def upload_to_salsify(con, sas_token):
         
         # Check if current file exists and create backup
         try:
-            blob_client = container_client.get_blob_client("salsify-sftp/hbb_salsify.xlsx")
+            blob_client = container_client.get_blob_client("salsify-product-info/salsify-sftp/hbb_salsify.xlsx")
             existing_data = blob_client.download_blob()
             
             # Upload to history with timestamp
             history_blob_client = container_client.get_blob_client(
-                f"salsify-sftp/history/hbb_salsify-{timestamp}.xlsx"
+                f"salsify-product-info/salsify-sftp/history/hbb_salsify-{timestamp}.xlsx"
             )
             history_blob_client.upload_blob(existing_data.readall(), overwrite=True)
             progress_container.info("Azure backup created successfully")
@@ -1271,7 +1271,7 @@ def upload_to_salsify(con, sas_token):
         
         # Step 6: Upload new Excel file to Azure
         progress_container.info("Uploading new Excel file to Azure...")
-        blob_client = container_client.get_blob_client("salsify-sftp/hbb_salsify.xlsx")
+        blob_client = container_client.get_blob_client("salsify-product-info/salsify-sftp/hbb_salsify.xlsx")
         blob_client.upload_blob(excel_buffer.getvalue(), overwrite=True)
         
         # Step 7: Save Excel file temporarily for SFTP upload
