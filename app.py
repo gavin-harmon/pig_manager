@@ -225,7 +225,7 @@ def show_sidebar(con=None):
 
         elif st.session_state.current_view == "PIG Management":
             # Use the filtered navigator
-            navigator = get_filtered_blob_navigator('pig-repository/', 'pig_nav')
+            navigator = get_filtered_blob_navigator('salsify-product-info/pig-repository/', 'pig_nav')
             selected_file = navigator.render_navigation()
 
             # Add Load Selected PIG button
@@ -590,8 +590,8 @@ def show_category_management():
 def download_all_files(sas_token):  # Change parameter name from connection_string to sas_token
     """Download all required files from blob storage"""
     status_files = {
-        'active': 'salsify-product-info/app-data/pig-info-table.parquet/Status=active/data_0.parquet',
-        'Obsolete': 'salsify-product-info/app-data/pig-info-table.parquet/Status=Obsolete/data_0.parquet'
+        'active': 'salsify-product-info/app-data/pig-info-table.parquet/Status=active/data_',
+        'Obsolete': 'salsify-product-info/app-data/pig-info-table.parquet/Status=Obsolete/data_'
     }
 
     for status, blob_path in status_files.items():
@@ -931,7 +931,7 @@ def show_upload_interface(con):
                              
                              
                              FROM pig_data WHERE Status = ? ) 
-                            TO 'local_data/pig-info-table/Status={status}/data_0.parquet' 
+                            TO 'local_data/pig-info-table/Status={status}/data_' 
                             (FORMAT PARQUET, OVERWRITE 1)
                         """, [status])
 
@@ -948,9 +948,9 @@ def show_upload_interface(con):
                             credential=st.session_state.sas_token
                         )
                         container_client = blob_service_client.get_container_client(st.secrets["AZ_CONTAINER"])
-                        blob_path = f"salsify-product-info/app-data/pig-info-table.parquet/Status={status}/data_0.parquet"
+                        blob_path = f"salsify-product-info/app-data/pig-info-table.parquet/Status={status}/data_"
                         
-                        with open(f"local_data/pig-info-table/Status={status}/data_0.parquet", "rb") as data:
+                        with open(f"local_data/pig-info-table/Status={status}/data_", "rb") as data:
                             container_client.upload_blob(
                                 name=blob_path,
                                 data=data,
