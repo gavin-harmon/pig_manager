@@ -591,7 +591,6 @@ def download_all_files(sas_token):  # Change parameter name from connection_stri
     """Download all required files from blob storage"""
     status_files = {
         'active': 'salsify-product-info/app-data/pig-info-table.parquet/Status=active/data_0.parquet',
-        'New': 'salsify-product-info/app-data/pig-info-table.parquet/Status=New/data_0.parquet',
         'Obsolete': 'salsify-product-info/app-data/pig-info-table.parquet/Status=Obsolete/data_0.parquet'
     }
 
@@ -1083,7 +1082,6 @@ def load_essential_data(sas_token):
 def load_additional_data(sas_token, con, pig_data_dir):  # Change parameter name
     try:
         additional_statuses = {
-            'New': 'salsify-product-info/0.parquet',
             'Obsolete': 'salsify-product-info/app-data/pig-info-table.parquet/Status=Obsolete/data_0.parquet'
         }
 
