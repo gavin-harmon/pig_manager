@@ -113,8 +113,9 @@ def get_blob_service_client(sas_token):
     """Create BlobServiceClient using SAS token"""
     return BlobServiceClient(
         account_url=AZURE_ACCOUNT_URL,
-        credential=sas_token
+        credential=sas_token  # Use token as-is
     )
+
 
 
 def get_filtered_blob_navigator(prefix, key_prefix):
@@ -1327,17 +1328,18 @@ def upload_to_salsify(con, sas_token):
 def validate_sas(sas_token):
     """Validate SAS token by attempting a container-level blob operation"""
     try:
-        # Clean up the SAS token
-        sas_token = sas_token.lstrip('?')
-
-        # Create the blob service client specifically for the container
-        container_url = f"https://daorgshare.blob.core.windows.net/{st.secrets["AZ_CONTAINER"]}?{sas_token}"
-        container_client = BlobServiceClient(
-                                    account_url=AZURE_ACCOUNT_URL,
-                                    credential=sas_token
-                                            ).get_container_client(st.secrets["AZ_CONTAINER"])
-
-        # Try to list blobs in the container (a container-level operation)
+        # Ensure SAS token format is consistent
+        # If it starts with '?', keep it as is for credential
+        # If it doesn't start with '?', we don't need to add it when used as credential
+        
+        # Create the blob service client
+        blob_service_client = BlobServiceClient(
+            account_url=AZURE_ACCOUNT_URL,
+            credential=sas_token  # Use the token as-is
+        )
+        
+        # Try to list blobs in the container
+        container_client = blob_service_client.get_container_client(st.secrets["AZ_CONTAINER"])
         next(container_client.list_blobs(), None)
         return True
 
