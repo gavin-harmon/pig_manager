@@ -1108,6 +1108,7 @@ def load_additional_data(sas_token, con, pig_data_dir):  # Change parameter name
 
 def show_salsify_upload(con):
     """Show Salsify upload interface"""
+    global display_df
     st.header("Upload To Salsify")
 
     # Add description
