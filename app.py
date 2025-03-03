@@ -1219,17 +1219,35 @@ def upload_to_salsify(con, sas_token):
         progress_container.info("Merging data...")
         
         if vendor_data is not None and not vendor_data.empty:
+            # Convert to strings for consistency
+            session_df['Item'] = session_df['Item'].astype(str).str.strip()
+            vendor_data['Item'] = vendor_data['Item'].astype(str).str.strip()
+            
             # Get all unique items
             all_items = pd.Series(pd.concat([session_df['Item'], vendor_data['Item']]).unique())
             
-            # Create a merged dataframe with all items
+            # Create a new dataframe
             merged_df = pd.DataFrame({'Item': all_items})
             
-            # Left join with session data (columns A-AS)
-            merged_df = pd.merge(merged_df, session_df, on='Item', how='left')
+            # Create dictionaries for faster lookups
+            session_dict = session_df.set_index('Item').to_dict('index')
+            vendor_dict = vendor_data.set_index('Item').to_dict('index')
             
-            # Left join with vendor data for AT-BO columns
-            merged_df = pd.merge(merged_df, vendor_data, on='Item', how='left')
+            # For each item, manually populate the row with data from both sources
+            for idx, row in merged_df.iterrows():
+                item = row['Item']
+                
+                # Add session data columns
+                if item in session_dict:
+                    for col, val in session_dict[item].items():
+                        merged_df.at[idx, col] = val
+                
+                # Add vendor data columns
+                if item in vendor_dict:
+                    for col, val in vendor_dict[item].items():
+                        # Only add if column doesn't already exist from session data
+                        if col not in session_df.columns or col == 'Item':
+                            merged_df.at[idx, col] = val
             
             # Fill NA values with empty strings
             merged_df = merged_df.fillna('')
