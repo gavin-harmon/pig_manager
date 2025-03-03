@@ -21,10 +21,8 @@ from streamlit_feature_catalog.features.category_manager.var_001 import Category
 from streamlit_feature_catalog.features.blob_navigation.var_003 import BlobNavigator, BlobNavigatorConfig
 
 # Azure Storage configuration
-AZURE_ACCOUNT_URL = "https://daorgshare.blob.core.windows.net"
-CONTAINER_NAME = "image-bank-webapp"
-
-
+AZURE_ACCOUNT_URL = st.secrets["AZ_ACCOUNT"]
+CONTAINER_NAME = st.secrets["AZ_CONTAINER"]
 
 # Page configuration
 st.set_page_config(
@@ -128,7 +126,7 @@ def get_filtered_blob_navigator(prefix, key_prefix):
         config=BlobNavigatorConfig(
             account_url=AZURE_ACCOUNT_URL,
             sas_token=st.session_state.sas_token,
-            allowed_containers=['image-bank-webapp'],
+            allowed_containers=[st.secrets["AZ_CONTAINER"]],
             path_prefix=normalized_prefix,
             allowed_extensions=['.xlsx'],  # Only show Excel files
             show_file_details=True,
@@ -529,8 +527,8 @@ def initialize_category_manager():
     try:
         # Set up the path
         base_dir = os.path.join(os.getcwd(), 'local_data')
-        reference_dir = os.path.join(base_dir, 'reference')
-        local_path = 'az://image-bank-webapp/app-data/validation/category_values.csv'
+        reference_dir = os.path.join(base_dir, 'reference')        
+        local_path = f'az://{st.secrets["AZ_CONTAINER"]}/salsify-product-info/app-data/validation/category_values.csv'
 
         # Create directories if they don't exist
         os.makedirs(reference_dir, exist_ok=True)
@@ -569,9 +567,9 @@ def show_category_management():
 
     try:
         blob_path = (
-            'image-bank-webapp/app-data/validation/category_values.csv'
+            f'{st.secrets["AZ_CONTAINER"]}/salsify-product-info/app-data/validation/category_values.csv'
             if data_type == "Categories"
-            else 'image-bank-webapp/app-data/validation/status_values.csv'
+            else f'{st.secrets["AZ_CONTAINER"]}/salsify-product-info/app-data/validation/status_values.csv'
         )
 
         # Remove connection string creation and use SAS token directly
@@ -599,7 +597,7 @@ def download_all_files(sas_token):  # Change parameter name from connection_stri
     for status, blob_path in status_files.items():
         success = download_from_blob(
             sas_token,
-            "image-bank-webapp",
+            st.secrets["AZ_CONTAINER"],
             blob_path,
             "local_data",
             f"pig-info-table-{status}.parquet"
@@ -736,7 +734,7 @@ def show_upload_interface(con):
                         account_url=AZURE_ACCOUNT_URL,
                         credential=st.session_state.sas_token
                     )
-                    shared_container_client = blob_service_client.get_container_client("image-bank-webapp")
+                    shared_container_client = blob_service_client.get_container_client(st.secrets["AZ_CONTAINER"])
                 
                     # Set filename using new format
                     item_number = preview_df.iloc[2, 1]  # B3 contains the Item number
@@ -949,7 +947,7 @@ def show_upload_interface(con):
                             account_url=AZURE_ACCOUNT_URL,
                             credential=st.session_state.sas_token
                         )
-                        container_client = blob_service_client.get_container_client("image-bank-webapp")
+                        container_client = blob_service_client.get_container_client(st.secrets["AZ_CONTAINER"])
                         blob_path = f"app-data/pig-info-table.parquet/Status={status}/data_0.parquet"
                         
                         with open(f"local_data/pig-info-table/Status={status}/data_0.parquet", "rb") as data:
@@ -970,7 +968,7 @@ def show_upload_interface(con):
                                 account_url=AZURE_ACCOUNT_URL,
                                 credential=st.session_state.sas_token
                             )
-                            shared_container_client = blob_service_client.get_container_client("image-bank-webapp")
+                            shared_container_client = blob_service_client.get_container_client(st.secrets["AZ_CONTAINER"])
                         
                             # Get the item number for the filename
                             item_number = edited_df['Item'].iloc[0]
@@ -1029,7 +1027,7 @@ def load_essential_data(sas_token):
     # Download active status data
     success, active_path = download_from_blob(
         sas_token,  # Use sas_token instead of connection_string
-        "image-bank-webapp",
+        st.secrets["AZ_CONTAINER"],
         "app-data/pig-info-table.parquet/Status=active/data_0.parquet",
         pig_data_dir,
         "data_0.parquet"
@@ -1039,14 +1037,14 @@ def load_essential_data(sas_token):
 
     # Download reference data
     reference_files = {
-        'category': 'app-data/validation/category_values.csv',
-        'status': 'app-data/validation/status_values.csv'
+        'category': 'salsify-product-info/app-data/validation/category_values.csv',
+        'status': 'salsify-product-info/app-data/validation/status_values.csv'
     }
 
     for ref_type, blob_path in reference_files.items():
         success, _ = download_from_blob(
             sas_token,  # Changed to sas_token
-            "image-bank-webapp",
+            st.secrets["AZ_CONTAINER"],
             blob_path,
             reference_dir,
             f"{ref_type}_values.csv"
@@ -1091,7 +1089,7 @@ def load_additional_data(sas_token, con, pig_data_dir):  # Change parameter name
         for status, blob_path in additional_statuses.items():
             success, path = download_from_blob(
                 sas_token,  # Use sas_token instead of connection_string
-                "image-bank-webapp",
+                st.secrets["AZ_CONTAINER"],
                 blob_path,
                 pig_data_dir,
                 f"Status={status}/data_0.parquet"
@@ -1253,7 +1251,7 @@ def upload_to_salsify(con, sas_token):
             account_url=AZURE_ACCOUNT_URL,
             credential=sas_token
         )
-        container_client = blob_service_client.get_container_client("image-bank-webapp")
+        container_client = blob_service_client.get_container_client(st.secrets["AZ_CONTAINER"])
         
         # Generate timestamp for backup
         timestamp = datetime.now(pytz.UTC).strftime("%Y%m%d_%H%M%S")
@@ -1332,12 +1330,12 @@ def validate_sas(sas_token):
         # Clean up the SAS token
         sas_token = sas_token.lstrip('?')
 
-        # Create the blob service client specifically for the image-bank-webapp container
-        container_url = f"https://daorgshare.blob.core.windows.net/image-bank-webapp?{sas_token}"
+        # Create the blob service client specifically for the container
+        container_url = f"https://daorgshare.blob.core.windows.net/{st.secrets["AZ_CONTAINER"]}?{sas_token}"
         container_client = BlobServiceClient(
                                     account_url=AZURE_ACCOUNT_URL,
                                     credential=sas_token
-                                            ).get_container_client("image-bank-webapp")
+                                            ).get_container_client(st.secrets["AZ_CONTAINER"])
 
         # Try to list blobs in the container (a container-level operation)
         next(container_client.list_blobs(), None)
