@@ -1219,35 +1219,32 @@ def upload_to_salsify(con, sas_token):
         progress_container.info("Merging data...")
         
         if vendor_data is not None and not vendor_data.empty:
-            # Convert to strings for consistency
+            # First, ensure consistent data types and formatting for the 'Item' column in all dataframes
             session_df['Item'] = session_df['Item'].astype(str).str.strip()
             vendor_data['Item'] = vendor_data['Item'].astype(str).str.strip()
             
             # Get all unique items
             all_items = pd.Series(pd.concat([session_df['Item'], vendor_data['Item']]).unique())
             
-            # Create a new dataframe
+            # Add some diagnostic info to help debug
+            progress_container.info(f"Total unique items: {len(all_items)}")
+            progress_container.info(f"Items in session_df: {len(session_df)}")
+            progress_container.info(f"Items in vendor_data: {len(vendor_data)}")
+            
+            # Create a merged dataframe with all items - also convert to string
             merged_df = pd.DataFrame({'Item': all_items})
+            merged_df['Item'] = merged_df['Item'].astype(str).str.strip()
             
-            # Create dictionaries for faster lookups
-            session_dict = session_df.set_index('Item').to_dict('index')
-            vendor_dict = vendor_data.set_index('Item').to_dict('index')
+            # Left join with session data (columns A-AS) with validated 'Item' column
+            merged_df = pd.merge(merged_df, session_df, on='Item', how='left', validate='1:1')
             
-            # For each item, manually populate the row with data from both sources
-            for idx, row in merged_df.iterrows():
-                item = row['Item']
-                
-                # Add session data columns
-                if item in session_dict:
-                    for col, val in session_dict[item].items():
-                        merged_df.at[idx, col] = val
-                
-                # Add vendor data columns
-                if item in vendor_dict:
-                    for col, val in vendor_dict[item].items():
-                        # Only add if column doesn't already exist from session data
-                        if col not in session_df.columns or col == 'Item':
-                            merged_df.at[idx, col] = val
+            # Check if we lost any data
+            missing_count = merged_df.isnull().any(axis=1).sum()
+            if missing_count > 0:
+                progress_container.warning(f"Warning: {missing_count} items had missing data after session merge")
+            
+            # Left join with vendor data for AT-BO columns
+            merged_df = pd.merge(merged_df, vendor_data, on='Item', how='left')
             
             # Fill NA values with empty strings
             merged_df = merged_df.fillna('')
