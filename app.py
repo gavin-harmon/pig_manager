@@ -590,9 +590,9 @@ def show_category_management():
 def download_all_files(sas_token):  # Change parameter name from connection_string to sas_token
     """Download all required files from blob storage"""
     status_files = {
-        'active': 'app-data/pig-info-table.parquet/Status=active/data_0.parquet',
-        'New': 'app-data/pig-info-table.parquet/Status=New/data_0.parquet',
-        'Obsolete': 'app-data/pig-info-table.parquet/Status=Obsolete/data_0.parquet'
+        'active': 'salsify-product-info/app-data/pig-info-table.parquet/Status=active/data_0.parquet',
+        'New': 'salsify-product-info/app-data/pig-info-table.parquet/Status=New/data_0.parquet',
+        'Obsolete': 'salsify-product-info/app-data/pig-info-table.parquet/Status=Obsolete/data_0.parquet'
     }
 
     for status, blob_path in status_files.items():
@@ -949,7 +949,7 @@ def show_upload_interface(con):
                             credential=st.session_state.sas_token
                         )
                         container_client = blob_service_client.get_container_client(st.secrets["AZ_CONTAINER"])
-                        blob_path = f"app-data/pig-info-table.parquet/Status={status}/data_0.parquet"
+                        blob_path = f"salsify-product-info/app-data/pig-info-table.parquet/Status={status}/data_0.parquet"
                         
                         with open(f"local_data/pig-info-table/Status={status}/data_0.parquet", "rb") as data:
                             container_client.upload_blob(
@@ -1083,8 +1083,8 @@ def load_essential_data(sas_token):
 def load_additional_data(sas_token, con, pig_data_dir):  # Change parameter name
     try:
         additional_statuses = {
-            'New': 'app-data/pig-info-table.parquet/Status=New/data_0.parquet',
-            'Obsolete': 'app-data/pig-info-table.parquet/Status=Obsolete/data_0.parquet'
+            'New': 'salsify-product-info/0.parquet',
+            'Obsolete': 'salsify-product-info/app-data/pig-info-table.parquet/Status=Obsolete/data_0.parquet'
         }
 
         for status, blob_path in additional_statuses.items():
