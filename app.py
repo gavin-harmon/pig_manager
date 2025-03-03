@@ -263,7 +263,7 @@ def show_sidebar(con=None):
 
         elif st.session_state.current_view == "Upload To Salsify":
             # Use the filtered navigator
-            navigator = get_filtered_blob_navigator('salsify-sftp/', 'salsify_nav')
+            navigator = get_filtered_blob_navigator('salsify-product-info/salsify-sftp/', 'salsify_nav')
             selected_file = navigator.render_navigation()
 
             # Add buttons for preview options
