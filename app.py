@@ -1326,29 +1326,19 @@ def upload_to_salsify(con, sas_token):
         return False
             
 def validate_sas(sas_token):
-    """Validate SAS token by attempting a directory-level blob operation"""
     try:
-        # Create the blob service client
         blob_service_client = BlobServiceClient(
             account_url=AZURE_ACCOUNT_URL,
             credential=sas_token
         )
-        
-        # Try to list blobs in a specific directory we know exists
-        # Use a hardcoded path to a directory we know should exist
         container_client = blob_service_client.get_container_client(st.secrets["AZ_CONTAINER"])
+        # Check a path we know should exist and is under the allowed directory
         blobs = container_client.list_blobs(name_starts_with="salsify-product-info/")
-        next(blobs, None)  # Just try to get the first blob
-            
+        next(blobs, None)
         return True
-
     except Exception as e:
         st.error(f"SAS validation error: {str(e)}")
         return False
-
-    except Exception as e:
-        st.error(f"SAS validation error: {str(e)}")
-        return False, None
 
 
 def main():
