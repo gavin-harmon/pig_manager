@@ -1129,6 +1129,7 @@ def show_salsify_upload(con):
 
         # Use the filtered data from session state if available
         display_df = st.session_state.get('filtered_preview_df', st.session_state.preview_df)
+        display_df = display_df.replace(['_x000D_'],[''])
         st.dataframe(display_df)
 
         if st.button("Clear Preview"):
