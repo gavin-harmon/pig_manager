@@ -32,7 +32,7 @@ st.set_page_config(
 
 # Define the exact column order
 COLUMN_ORDER = [
-    'Item', 'Category', 'About', 'Bullet Copy', 'Heading',  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   ,
+    'Item', 'Category', 'About', 'Bullet Copy', 'Heading', "Spanish Bullet Copy"   ,
     'Subheading', 'Enhanced Product Name', 'Bullet Copy 1', 'Bullet Copy 2',
     'Bullet Copy 3', 'Bullet Copy 4', 'Bullet Copy 5', 'Bullet Copy 6',
     'Bullet Copy 7', 'Bullet Copy 8', 'Bullet Copy 9', 'Bullet Copy 10',
