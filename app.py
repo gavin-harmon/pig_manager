@@ -1060,7 +1060,7 @@ def load_essential_data(sas_token):
     # Load active data
     con.execute(f"""
     CREATE OR REPLACE TABLE pig_data AS 
-    SELECT distinct * FROM read_parquet('{os.path.join(pig_data_dir,"Status=active", "data_0.parquet")}')
+    SELECT distinct * REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  ) FROM read_parquet('{os.path.join(pig_data_dir,"Status=active", "data_0.parquet")}')
 
     """)
 
@@ -1097,7 +1097,7 @@ def load_additional_data(sas_token, con, pig_data_dir):  # Change parameter name
                 # Append to existing table using DISTINCT to avoid duplicates
                 con.execute(f"""
                 INSERT INTO pig_data 
-                SELECT DISTINCT * FROM read_parquet('{os.path.join(pig_data_dir, "*", "data_0.parquet")}')
+                SELECT DISTINCT * REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  ) FROM read_parquet('{os.path.join(pig_data_dir, "*", "data_0.parquet")}')
                 WHERE Status = ?
                 """, [status])
 
