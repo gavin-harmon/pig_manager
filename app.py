@@ -715,6 +715,7 @@ def show_upload_interface(con):
             with st.expander("View PIG File", expanded=False):
                 st.info("Viewing uploaded file content. Verify the data before processing.")
                 preview_df = pd.read_excel(file_to_process, header=None, engine='openpyxl')
+                preview_df = preview_df.replace(['_x000D_'],[''])
                 st.dataframe(preview_df)
                 file_to_process.seek(0)  # Reset file pointer after reading
             
