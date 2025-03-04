@@ -819,7 +819,7 @@ def show_upload_interface(con):
 
                 # Data View
                 st.subheader("Data View")
-                df = con.execute("SELECT *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  FROM temp_pig_mapped").df()
+                df = con.execute(" FROM temp_pig_mapped").df()
                 st.write("Debug - Original DataFrame from temp_pig_mapped:")
                 st.write(f"Shape: {df.shape}")
                 st.write(f"Items: {df['Item'].tolist()}")
