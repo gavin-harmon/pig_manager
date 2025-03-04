@@ -286,7 +286,7 @@ def show_sidebar(con=None):
                 try:
                     if con is not None:
                         session_df = con.execute("""
-                            SELECT DISTINCT * EXCLUDE(Status) 
+                            SELECT DISTINCT * EXCLUDE(Status)  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  ) 
                             FROM pig_data 
                             ORDER BY Item
                         """).df()
@@ -1235,10 +1235,14 @@ def upload_to_salsify(con, sas_token):
             
             # Fill NA values with empty strings
             merged_df = merged_df.fillna('')
+
+            merged_df = merged_df.replace(['_x000D_'],['']
+        
         else:
             # Just use session data if vendor data is not available
             merged_df = display_df.copy()
             merged_df = merged_df.fillna('')
+            merged_df = merged_df.replace(['_x000D_'],['']        
         
         # Step 4: Create Excel file in memory
         progress_container.info("Creating combined Excel file...")
