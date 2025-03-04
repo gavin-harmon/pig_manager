@@ -251,6 +251,7 @@ def show_sidebar(con=None):
             if 'uploaded_pig' in st.session_state and st.session_state.uploaded_pig:
                 st.divider()
                 preview_df = pd.read_excel(st.session_state.uploaded_pig, header=None)
+                preview_df = con.sql("  select *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  from preview_df  ").df()
                 item_number = preview_df.iloc[2, 1]  # B3 contains the Item number
                 st.session_state.uploaded_pig.seek(0)
                 st.download_button(
