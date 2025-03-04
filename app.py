@@ -251,7 +251,7 @@ def show_sidebar(con=None):
             if 'uploaded_pig' in st.session_state and st.session_state.uploaded_pig:
                 st.divider()
                 preview_df = pd.read_excel(st.session_state.uploaded_pig, header=None)
-                preview_df = con.sql("  select *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  from preview_df  ").df()
+                preview_df = preview_df.replace(['_x000D_'],['']
                 item_number = preview_df.iloc[2, 1]  # B3 contains the Item number
                 st.session_state.uploaded_pig.seek(0)
                 st.download_button(
@@ -868,7 +868,7 @@ def show_upload_interface(con):
                         edited_df['Category'] = category
                         edited_df['Status'] = status
                         edited_df = edited_df[["Item","Category","About","Status","Bullet Copy","Heading"
-                            ,"Spanish Bullet Copy", "Subheading","Enhanced Product Name","Bullet Copy 1","Bullet Copy 2","Bullet Copy 3"
+                            , REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  ) , "Subheading","Enhanced Product Name","Bullet Copy 1","Bullet Copy 2","Bullet Copy 3"
                             ,"Bullet Copy 4","Bullet Copy 5","Bullet Copy 6","Bullet Copy 7","Bullet Copy 8"
                             ,"Bullet Copy 9","Bullet Copy 10","Feature/Benefit 1","Feature/Benefit 2"
                             ,"FeatureBenefit 3","Feature/Benefit 4","FeatureBenefit 5","Feature/Benefit 6"
@@ -878,8 +878,7 @@ def show_upload_interface(con):
                             ,"SEO Enhanced Bullets 5","SEO Enhanced Bullets 6","SEO Enhanced Bullets 7"
                             ,"SEO Enhanced Bullets 8","SEO Enhanced Bullets 9","SEO Enhanced Bullets 10"
                             ,"Short Description","USP","Brand"]]
-                        edited_df = edited_df.replace(['not in pig'],[''])
-
+                        edited_df = edited_df.replace(['not in pig'],['']).replace(['_x000D_'],[''])
 
                         # Debug - Show data before insertion
                         st.write("Debug - Data before insertion:")
