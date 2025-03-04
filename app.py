@@ -121,7 +121,7 @@ def get_blob_service_client(sas_token):
 def get_filtered_blob_navigator(prefix, key_prefix):
     """Helper function to create a configured BlobNavigator"""
     # Make sure the prefix uses forward slashes and ends with a slash
-    normalized_prefix = prefix.('\\', '/').rstrip('/') + '/'
+    normalized_prefix = prefix.replace('\\', '/').rstrip('/') + '/'
 
     return BlobNavigator(
         config=BlobNavigatorConfig(
@@ -868,7 +868,7 @@ def show_upload_interface(con):
                         edited_df['Category'] = category
                         edited_df['Status'] = status
                         edited_df = edited_df[["Item","Category","About","Status","Bullet Copy","Heading"
-                            , REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  ) , "Subheading","Enhanced Product Name","Bullet Copy 1","Bullet Copy 2","Bullet Copy 3"
+                            ,"Spanish Bullet Copy", "Subheading","Enhanced Product Name","Bullet Copy 1","Bullet Copy 2","Bullet Copy 3"
                             ,"Bullet Copy 4","Bullet Copy 5","Bullet Copy 6","Bullet Copy 7","Bullet Copy 8"
                             ,"Bullet Copy 9","Bullet Copy 10","Feature/Benefit 1","Feature/Benefit 2"
                             ,"FeatureBenefit 3","Feature/Benefit 4","FeatureBenefit 5","Feature/Benefit 6"
@@ -878,7 +878,8 @@ def show_upload_interface(con):
                             ,"SEO Enhanced Bullets 5","SEO Enhanced Bullets 6","SEO Enhanced Bullets 7"
                             ,"SEO Enhanced Bullets 8","SEO Enhanced Bullets 9","SEO Enhanced Bullets 10"
                             ,"Short Description","USP","Brand"]]
-                        edited_df = edited_df.replace(['not in pig'],['']).replace(['_x000D_'],[''])
+                        edited_df = edited_df.replace(['not in pig'],[''])
+
 
                         # Debug - Show data before insertion
                         st.write("Debug - Data before insertion:")
