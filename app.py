@@ -766,7 +766,7 @@ def show_upload_interface(con):
                     st.metric("Total Fields", validation_info['total_fields'])
 
                 # Get mapped data
-                mapped_data = con.execute("SELECT *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  FROM temp_pig_mapped LIMIT 1").df().iloc[0]
+                mapped_data = con.execute(" FROM temp_pig_mapped LIMIT 1").df().iloc[0]
 
                 # Show field groups
                 st.subheader("PIG Upload Information - Editable")
