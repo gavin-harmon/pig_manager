@@ -121,7 +121,7 @@ def get_blob_service_client(sas_token):
 def get_filtered_blob_navigator(prefix, key_prefix):
     """Helper function to create a configured BlobNavigator"""
     # Make sure the prefix uses forward slashes and ends with a slash
-    normalized_prefix = prefix.replace('\\', '/').rstrip('/') + '/'
+    normalized_prefix = prefix.'\\', '/').rstrip('/') + '/'
 
     return BlobNavigator(
         config=BlobNavigatorConfig(
@@ -251,7 +251,7 @@ def show_sidebar(con=None):
             if 'uploaded_pig' in st.session_state and st.session_state.uploaded_pig:
                 st.divider()
                 preview_df = pd.read_excel(st.session_state.uploaded_pig, header=None)
-                preview_df = preview_df.replace(['_x000D_'],['']
+                preview_df = preview_df.replace(['_x000D_'],[''])
                 item_number = preview_df.iloc[2, 1]  # B3 contains the Item number
                 st.session_state.uploaded_pig.seek(0)
                 st.download_button(
