@@ -896,7 +896,7 @@ def show_upload_interface(con):
                         """, [item_number, item_number])
 
                         st.write("Debug - Checking pig_data2 after insertion:")
-                        check_df = con.execute("SELECT *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  FROM pig_data2 WHERE Item = ?", [item_number]).df()
+                        check_df = con.execute(" FROM pig_data2 WHERE Item = ?", [item_number]).df()
                         st.write(check_df)
 
                         con.execute("""
