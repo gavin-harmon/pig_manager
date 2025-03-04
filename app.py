@@ -688,7 +688,7 @@ def process_pig_file(uploaded_file, con):
         # Store mapped data in DuckDB
         mapped_df = pd.DataFrame([output_data])
         con.execute("DROP TABLE IF EXISTS temp_pig_mapped")
-        con.execute("CREATE TABLE temp_pig_mapped AS SELECT * , REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )    FROM mapped_df  ")
+        con.execute("CREATE OR REPLACE TABLE temp_pig_mapped AS FROM mapped_df  ")
 
         return True, validation_info
 
