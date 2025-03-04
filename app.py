@@ -286,7 +286,7 @@ def show_sidebar(con=None):
                 try:
                     if con is not None:
                         session_df = con.execute("""
-                            SELECT DISTINCT * EXCLUDE(Status)  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  ) 
+                            SELECT DISTINCT * EXCLUDE(Status)  REPLACE (   replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy" , replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   ) 
                             FROM pig_data 
                             ORDER BY Item
                         """).df()
@@ -503,7 +503,8 @@ def load_local_data():
         # Create combined table from all parquet files
         query = f"""
         CREATE OR REPLACE TABLE pig_data AS 
-        SELECT *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  FROM read_parquet({", ".join(repr(f) for f in parquet_files)})
+        SELECT *  REPLACE (   replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy" , replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   )  FROM read_parquet({", ".join(repr(f) for f in parquet_files)})
+
         """
         con.execute(query)
 
@@ -892,7 +893,8 @@ def show_upload_interface(con):
                             SELECT * FROM (
                                 SELECT * FROM pig_data WHERE Item != ? and "Item" not in  ('no item' ,'no_item')
                                 UNION ALL
-                                SELECT *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  FROM edited_df WHERE Item = ? and "Item" not in  ('no item' ,'no_item')
+                                SELECT *   REPLACE (   replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy" , replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   ) 
+                                FROM edited_df WHERE Item = ? and "Item" not in  ('no item' ,'no_item')
                             ) ordered
                             ORDER BY Item
                         """, [item_number, item_number])
@@ -915,9 +917,9 @@ def show_upload_interface(con):
                             COPY (SELECT DISTINCT 
                             
                             
-                            "Item","Category","About","Status","Bullet Copy","Heading",  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy" ,
-                            "Subheading","Enhanced Product Name","Bullet Copy 1","Bullet Copy 2","Bullet Copy 3"
-                            ,"Bullet Copy 4","Bullet Copy 5","Bullet Copy 6","Bullet Copy 7","Bullet Copy 8"
+                            "Item", "Category", "About", "Status", replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy", "Heading",  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy" ,
+                            "Subheading", "Enhanced Product Name", "Bullet Copy 1" ,"Bullet Copy 2" ,"Bullet Copy 3"
+                            ,"Bullet Copy 4","Bullet Copy 5","Bullet Copy 6", "Bullet Copy 7", "Bullet Copy 8"
                             ,"Bullet Copy 9","Bullet Copy 10","Feature/Benefit 1","Feature/Benefit 2"
                             ,"FeatureBenefit 3","Feature/Benefit 4","FeatureBenefit 5","Feature/Benefit 6"
                             ,"Feature/Benefit 7","Feature/Benefit 8","Feature/Benefit 9","Feature/Benefit 10"
@@ -926,12 +928,6 @@ def show_upload_interface(con):
                             ,"SEO Enhanced Bullets 5","SEO Enhanced Bullets 6","SEO Enhanced Bullets 7"
                             ,"SEO Enhanced Bullets 8","SEO Enhanced Bullets 9","SEO Enhanced Bullets 10"
                             ,"Short Description","USP","Brand"
-                             
-                             
-                             
-                             
-                             
-                             
                              FROM pig_data WHERE Status = ? ) 
                             TO 'local_data/pig-info-table/Status={status}/data_' 
                             (FORMAT PARQUET, OVERWRITE 1)
@@ -1062,7 +1058,7 @@ def load_essential_data(sas_token):
     # Load active data
     con.execute(f"""
     CREATE OR REPLACE TABLE pig_data AS 
-    SELECT distinct * REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  ) FROM read_parquet('{os.path.join(pig_data_dir,"Status=active", "data_0.parquet")}')
+    SELECT distinct * REPLACE (   replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy" , replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   ) FROM read_parquet('{os.path.join(pig_data_dir,"Status=active", "data_0.parquet")}')
 
     """)
 
@@ -1099,7 +1095,7 @@ def load_additional_data(sas_token, con, pig_data_dir):  # Change parameter name
                 # Append to existing table using DISTINCT to avoid duplicates
                 con.execute(f"""
                 INSERT INTO pig_data 
-                SELECT DISTINCT * REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  ) FROM read_parquet('{os.path.join(pig_data_dir, "*", "data_0.parquet")}')
+                SELECT DISTINCT * REPLACE (   replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy" , replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   )  FROM read_parquet('{os.path.join(pig_data_dir, "*", "data_0.parquet")}')
                 WHERE Status = ?
                 """, [status])
 
@@ -1130,6 +1126,7 @@ def show_salsify_upload(con):
         # Use the filtered data from session state if available
         display_df = st.session_state.get('filtered_preview_df', st.session_state.preview_df)
         display_df = display_df.replace(['_x000D_'],[''])
+        display_df = con.sql(""" select *   REPLACE (   replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy" , replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   )  from         display_df """).df()
         st.dataframe(display_df)
 
         if st.button("Clear Preview"):
