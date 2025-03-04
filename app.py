@@ -502,7 +502,7 @@ def load_local_data():
         # Create combined table from all parquet files
         query = f"""
         CREATE OR REPLACE TABLE pig_data AS 
-        SELECT * FROM read_parquet({", ".join(repr(f) for f in parquet_files)})
+        SELECT *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  FROM read_parquet({", ".join(repr(f) for f in parquet_files)})
         """
         con.execute(query)
 
