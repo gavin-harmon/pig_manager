@@ -1237,13 +1237,13 @@ def upload_to_salsify(con, sas_token):
             # Fill NA values with empty strings
             merged_df = merged_df.fillna('')
 
-            merged_df = merged_df.replace(['_x000D_'],['']
+            merged_df = merged_df.replace(['_x000D_'],[''])
         
         else:
             # Just use session data if vendor data is not available
             merged_df = display_df.copy()
             merged_df = merged_df.fillna('')
-            merged_df = merged_df.replace(['_x000D_'],['']        
+            merged_df = merged_df.replace(['_x000D_'],[''])      
         
         # Step 4: Create Excel file in memory
         progress_container.info("Creating combined Excel file...")
