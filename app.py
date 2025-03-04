@@ -32,7 +32,7 @@ st.set_page_config(
 
 # Define the exact column order
 COLUMN_ORDER = [
-    'Item', 'Category', 'About', 'Bullet Copy', 'Heading', 'Spanish Bullet Copy',
+    'Item', 'Category', 'About', 'Bullet Copy', 'Heading',  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   ,
     'Subheading', 'Enhanced Product Name', 'Bullet Copy 1', 'Bullet Copy 2',
     'Bullet Copy 3', 'Bullet Copy 4', 'Bullet Copy 5', 'Bullet Copy 6',
     'Bullet Copy 7', 'Bullet Copy 8', 'Bullet Copy 9', 'Bullet Copy 10',
@@ -688,7 +688,7 @@ def process_pig_file(uploaded_file, con):
         # Store mapped data in DuckDB
         mapped_df = pd.DataFrame([output_data])
         con.execute("DROP TABLE IF EXISTS temp_pig_mapped")
-        con.execute("CREATE TABLE temp_pig_mapped AS SELECT * FROM mapped_df")
+        con.execute("CREATE TABLE temp_pig_mapped AS SELECT *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )    FROM mapped_df")
 
         return True, validation_info
 
@@ -766,7 +766,7 @@ def show_upload_interface(con):
                     st.metric("Total Fields", validation_info['total_fields'])
 
                 # Get mapped data
-                mapped_data = con.execute("SELECT * FROM temp_pig_mapped LIMIT 1").df().iloc[0]
+                mapped_data = con.execute("SELECT *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  FROM temp_pig_mapped LIMIT 1").df().iloc[0]
 
                 # Show field groups
                 st.subheader("PIG Upload Information - Editable")
@@ -819,7 +819,7 @@ def show_upload_interface(con):
 
                 # Data View
                 st.subheader("Data View")
-                df = con.execute("SELECT * FROM temp_pig_mapped").df()
+                df = con.execute("SELECT *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  FROM temp_pig_mapped").df()
                 st.write("Debug - Original DataFrame from temp_pig_mapped:")
                 st.write(f"Shape: {df.shape}")
                 st.write(f"Items: {df['Item'].tolist()}")
@@ -890,13 +890,13 @@ def show_upload_interface(con):
                             SELECT * FROM (
                                 SELECT * FROM pig_data WHERE Item != ? and "Item" not in  ('no item' ,'no_item')
                                 UNION ALL
-                                SELECT * FROM edited_df WHERE Item = ? and "Item" not in  ('no item' ,'no_item')
+                                SELECT *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  FROM edited_df WHERE Item = ? and "Item" not in  ('no item' ,'no_item')
                             ) ordered
                             ORDER BY Item
                         """, [item_number, item_number])
 
                         st.write("Debug - Checking pig_data2 after insertion:")
-                        check_df = con.execute("SELECT * FROM pig_data2 WHERE Item = ?", [item_number]).df()
+                        check_df = con.execute("SELECT *  REPLACE (  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"  )  FROM pig_data2 WHERE Item = ?", [item_number]).df()
                         st.write(check_df)
 
                         con.execute("""
@@ -913,7 +913,7 @@ def show_upload_interface(con):
                             COPY (SELECT DISTINCT 
                             
                             
-                            "Item","Category","About","Status","Bullet Copy","Heading","Spanish Bullet Copy",
+                            "Item","Category","About","Status","Bullet Copy","Heading",  replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy" ,
                             "Subheading","Enhanced Product Name","Bullet Copy 1","Bullet Copy 2","Bullet Copy 3"
                             ,"Bullet Copy 4","Bullet Copy 5","Bullet Copy 6","Bullet Copy 7","Bullet Copy 8"
                             ,"Bullet Copy 9","Bullet Copy 10","Feature/Benefit 1","Feature/Benefit 2"
