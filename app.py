@@ -121,7 +121,7 @@ def get_blob_service_client(sas_token):
 def get_filtered_blob_navigator(prefix, key_prefix):
     """Helper function to create a configured BlobNavigator"""
     # Make sure the prefix uses forward slashes and ends with a slash
-    normalized_prefix = prefix.'\\', '/').rstrip('/') + '/'
+    normalized_prefix = prefix.('\\', '/').rstrip('/') + '/'
 
     return BlobNavigator(
         config=BlobNavigatorConfig(
