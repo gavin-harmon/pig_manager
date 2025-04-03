@@ -1142,9 +1142,9 @@ def show_salsify_upload(con):
     col1, col2 = st.columns([1, 3])
     with col1:
         if st.button("Upload to Salsify", type="primary"):
-            upload_to_salsify(con, st.session_state.sas_token)
+            upload_to_salsify(con, st.session_state.sas_token, display_df)
 
-def upload_to_salsify(con, sas_token):
+def upload_to_salsify(con, sas_token, display_df):
     """
     Read parquet data, create Excel file that combines both the vendor-managed 
     and app-managed data, then upload to Azure blob storage and Salsify SFTP
