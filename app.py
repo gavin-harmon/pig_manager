@@ -741,7 +741,7 @@ def show_upload_interface(con):
                 
                     # Set filename using new format
                     item_number = preview_df.iloc[2, 1]  # B3 contains the Item number
-                    blob_name = f"pig-repository/{item_number} - PIG.xlsx"  # New naming format
+                    blob_name = f"salsify-product-info/pig-repository/{item_number} - PIG.xlsx"  # New naming format
                 
                     # Upload file to container
                     blob_client = shared_container_client.get_blob_client(blob_name)
@@ -972,7 +972,7 @@ def show_upload_interface(con):
                             item_number = edited_df['Item'].iloc[0]
                             
                             # Set filename using new format
-                            blob_name = f"pig-repository/{item_number}_PIG.xlsx"  # New naming format
+                            blob_name = f"salsify-product-info/pig-repository/{item_number}_PIG.xlsx"  # New naming format
                         
                             # Save edited data to Excel in memory
                             excel_buffer = io.BytesIO()
