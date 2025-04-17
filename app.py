@@ -285,11 +285,18 @@ def show_sidebar(con=None):
             if st.button("Preview Session Records", use_container_width=True):
                 try:
                     if con is not None:
-                        session_df = con.execute("""
-                            SELECT DISTINCT * EXCLUDE(Status)  REPLACE (   replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy" , replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   ) 
-                            FROM pig_data 
-                            ORDER BY Item
-                        """).df()
+                        try:
+                            session_df = con.execute("""
+                                SELECT DISTINCT * EXCLUDE(Status)  REPLACE (   replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy" , replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   ) 
+                                FROM pig_data 
+                                ORDER BY Item
+                                    """).df()
+                        except:
+                            session_df = con.execute("""
+                                SELECT DISTINCT * REPLACE (   replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy" , replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   ) 
+                                FROM pig_data 
+                                ORDER BY Item
+                                    """).df()
 
                         st.session_state.preview_df = session_df
                         st.session_state.preview_filename = "Current Session Data"
@@ -1193,11 +1200,18 @@ def upload_to_salsify(con, sas_token, display_df):
 
         # Step 1: Read session data (our managed data, columns A-AS)
         progress_container.info("Reading session data...")
-        session_df = con.execute("""
-            SELECT DISTINCT * EXCLUDE(Status) FROM pig_data 
-            ORDER BY Item
-        """).df()
 
+        try:
+            session_df = con.execute("""
+                SELECT DISTINCT * EXCLUDE(Status) FROM pig_data 
+                ORDER BY Item
+            """).df()
+        except:
+            session_df = con.execute("""
+                SELECT DISTINCT * FROM pig_data 
+                ORDER BY Item
+            """).df()
+        
         # Step 2: Download vendor's salsify.xlsx
         progress_container.info("Downloading vendor's Salsify data...")
         try:
