@@ -1013,10 +1013,7 @@ def setup_local_directories():
     return base_dir, pig_data_dir, reference_dir
 
 
-I understand your problem. The current application loads initial data from Azure Blob Storage (parquet files) rather than directly from the Salsify SFTP server, which means it might not be working with the most current data.
-You want to modify the initial data loading process to read directly from the SFTP server's "hbb_salsify.xlsx" file, similar to how the upload function does it. This would ensure you're always working with the most up-to-date Salsify data.
-Here's how we can modify the load_essential_data function to implement this change:
-pythondef load_essential_data(sas_token):
+def load_essential_data(sas_token):
     """Load initial essential data directly from Salsify SFTP"""
     base_dir, pig_data_dir, reference_dir = setup_local_directories()
 
