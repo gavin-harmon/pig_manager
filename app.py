@@ -1013,26 +1013,64 @@ def setup_local_directories():
     return base_dir, pig_data_dir, reference_dir
 
 
-def load_essential_data(sas_token):
-    """Load initial essential data (Active status and reference data)"""
+I understand your problem. The current application loads initial data from Azure Blob Storage (parquet files) rather than directly from the Salsify SFTP server, which means it might not be working with the most current data.
+You want to modify the initial data loading process to read directly from the SFTP server's "hbb_salsify.xlsx" file, similar to how the upload function does it. This would ensure you're always working with the most up-to-date Salsify data.
+Here's how we can modify the load_essential_data function to implement this change:
+pythondef load_essential_data(sas_token):
+    """Load initial essential data directly from Salsify SFTP"""
     base_dir, pig_data_dir, reference_dir = setup_local_directories()
 
     # Create progress placeholder
     progress_placeholder = st.empty()
-    progress_placeholder.text("Loading essential data...")
+    progress_placeholder.text("Loading essential data from Salsify SFTP...")
 
-    # Download active status data
-    success, active_path = download_from_blob(
-        sas_token,  # Use sas_token instead of connection_string
-        st.secrets["AZ_CONTAINER"],
-        "salsify-product-info/app-data/pig-info-table.parquet/Status=active/data_0.parquet",
-        pig_data_dir,
-        "data_0.parquet"
-    )
-    if not success:
-        return False, None, None
+    try:
+        # SFTP Connection details
+        HOSTNAME = st.secrets["SALSIFY_HOSTNAME"]
+        USERNAME = st.secrets["SALSIFY_USERNAME"]
+        PASSWORD = st.secrets["SALSIFY_PASSWORD"]
+        
+        # Local path to save the file temporarily
+        temp_file_path = os.path.join(os.getcwd(), "temp_salsify_download.xlsx")
+        
+        # Connect to FTP server
+        ftp_server = ftplib.FTP(HOSTNAME, USERNAME, PASSWORD)
+        
+        # Download the file
+        with open(temp_file_path, "wb") as file:
+            ftp_server.retrbinary(f"RETR hbb_salsify.xlsx", file.write)
+        
+        # Close FTP connection
+        ftp_server.quit()
+        
+        # Read the Salsify data
+        salsify_df = pd.read_excel(temp_file_path)
+        
+        # Clean up temporary file
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+            
+        progress_placeholder.text("Successfully loaded data from Salsify SFTP")
+        
+    except Exception as e:
+        progress_placeholder.error(f"Error downloading from Salsify SFTP: {str(e)}")
+        progress_placeholder.warning("Falling back to Azure Blob Storage data...")
+        
+        # Download active status data as fallback
+        success, active_path = download_from_blob(
+            sas_token,
+            st.secrets["AZ_CONTAINER"],
+            "salsify-product-info/app-data/pig-info-table.parquet/Status=active/data_0.parquet",
+            pig_data_dir,
+            "data_0.parquet"
+        )
+        if not success:
+            return False, None, None
+            
+        # Read from parquet as fallback
+        salsify_df = pd.read_parquet(os.path.join(pig_data_dir, "Status=active", "data_0.parquet"))
 
-    # Download reference data
+    # Download reference data (still from Azure)
     reference_files = {
         'category': 'salsify-product-info/app-data/validation/category_values.csv',
         'status': 'salsify-product-info/app-data/validation/status_values.csv'
@@ -1040,7 +1078,7 @@ def load_essential_data(sas_token):
 
     for ref_type, blob_path in reference_files.items():
         success, _ = download_from_blob(
-            sas_token,  # Changed to sas_token
+            sas_token,
             st.secrets["AZ_CONTAINER"],
             blob_path,
             reference_dir,
@@ -1054,11 +1092,13 @@ def load_essential_data(sas_token):
     # Load into DuckDB
     con = duckdb.connect(database=':memory:')
 
-    # Load active data
-    con.execute(f"""
+    # Load Salsify data
+    con.execute("""
     CREATE OR REPLACE TABLE pig_data AS 
-    SELECT distinct * REPLACE (   replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy" , replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   ) FROM read_parquet('{os.path.join(pig_data_dir,"Status=active", "data_0.parquet")}')
-
+    SELECT distinct * REPLACE (
+        replace("Bullet Copy", '_x000D_', '') as "Bullet Copy", 
+        replace("Spanish Bullet Copy", '_x000D_', '') as "Spanish Bullet Copy"
+    ) FROM salsify_df
     """)
 
     # Load reference data
@@ -1069,7 +1109,7 @@ def load_essential_data(sas_token):
 
     con.execute(f"""
     CREATE OR REPLACE TABLE status_values AS 
-    SELECT * FROM read_csv('{os.path.join(reference_dir, "status_values.csv")}', header=true)  order by 1
+    SELECT * FROM read_csv('{os.path.join(reference_dir, "status_values.csv")}', header=true) order by 1
     """)
 
     return True, con, (pig_data_dir, reference_dir)
