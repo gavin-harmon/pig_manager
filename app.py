@@ -894,6 +894,7 @@ def show_upload_interface(con):
                         st.write(edited_df)
 
                         # Insert with explicit column selection
+
                         con.execute("""
                             CREATE OR REPLACE TABLE pig_data2 AS
                             SELECT * FROM (
@@ -1143,9 +1144,12 @@ def load_additional_data(sas_token, con, pig_data_dir):  # Change parameter name
                 """, [status])
 
         return True
-    except Exception as e:
-        st.error(f"Error loading additional data: {str(e)}")
-        return False
+        
+    except:
+        pass
+    #except Exception as e:
+    #    st.error(f"Error loading additional data: {str(e)}")
+    #    return False
 
 def show_salsify_upload(con):
     """Show Salsify upload interface"""
