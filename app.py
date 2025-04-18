@@ -1317,8 +1317,8 @@ def upload_to_salsify(con, sas_token, display_df):
                                    'Feature/Benefit 4', 'FeatureBenefit 5', 'Feature/Benefit 6', 'Feature/Benefit 7', 'Feature/Benefit 8', 'Feature/Benefit 9',
                                    'Feature/Benefit 10', 'Keywords', 'Long Description', 'Product ID', 'Product Title', 'SEO Enhanced Bullets 1', 'SEO Enhanced Bullets 2', 
                                    'SEO Enhanced Bullets 3', 'SEO Enhanced Bullets 4', 'SEO Enhanced Bullets 5', 'SEO Enhanced Bullets 6', 'SEO Enhanced Bullets 7',
-                                   'SEO Enhanced Bullets 8', 'SEO Enhanced Bullets 9', 'SEO Enhanced Bullets 10', 'Short Description', 'USP', 'Brand', 'Image Assets', '
-                                   PDF Assets', 'Video Assets', 'VPA 1', 'VPA 2', 'VPA 3', 'VPA 4', 'VPA 5', 'VPA 6', 'VPA 7', 'VPA 8', 'VPA 9', 'VPA 10', 
+                                   'SEO Enhanced Bullets 8', 'SEO Enhanced Bullets 9', 'SEO Enhanced Bullets 10', 'Short Description', 'USP', 'Brand', 'Image Assets', 
+                                   'PDF Assets', 'Video Assets', 'VPA 1', 'VPA 2', 'VPA 3', 'VPA 4', 'VPA 5', 'VPA 6', 'VPA 7', 'VPA 8', 'VPA 9', 'VPA 10', 
                                    'VPA 11', 'VPA 12', 'VPA 13', 'VPA 14', 'VPA 15', 'VPA 16', 'VPA 17', 'VPA 18', 'VPA 19']]
         
         # Step 4: Create Excel file in memory
