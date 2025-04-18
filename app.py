@@ -899,7 +899,7 @@ def show_upload_interface(con):
                             CREATE OR REPLACE TABLE pig_data2 AS
                             SELECT * FROM (
                                 SELECT * FROM pig_data WHERE Item != ? and "Item" not in  ('no item' ,'no_item')
-                                UNION ALL
+                                UNION BY NAME
                                 SELECT *   REPLACE (   replace("Bullet Copy" , '_x000D_', '')   as "Bullet Copy" , replace("Spanish Bullet Copy" , '_x000D_', '')   as "Spanish Bullet Copy"   ) 
                                 FROM edited_df WHERE Item = ? and "Item" not in  ('no item' ,'no_item')
                             ) ordered
