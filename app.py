@@ -64,13 +64,13 @@ FIELD_MAPPINGS = {
 BULLET_MAPPINGS = {f'Bullet Copy {i}': (f'A{11+i}', 'not in pig') for i in range(1, 11)}
 # Define Feature/Benefit mappings with special handling for 3 and 5
 FEATURE_BENEFIT_MAPPINGS = {
-    **{f'Feature/Benefit {i}': (f'B{10+i}', 'not in pig') for i in range(1, 3)},  # 1-2
-    'FeatureBenefit 3': ('B13', 'not in pig'),                                     # 3
-    'Feature/Benefit 4': ('B14', 'not in pig'),                                    # 4
-    'FeatureBenefit 5': ('B15', 'not in pig'),                                    # 5
-    **{f'Feature/Benefit {i}': (f'B{10+i}', 'not in pig') for i in range(6, 11)}  # 6-10
+    **{f'Feature/Benefit {i}': (f'B{11+i}', 'not in pig') for i in range(1, 3)},  # 1-2
+    'FeatureBenefit 3': ('B14', 'not in pig'),                                     # 3
+    'Feature/Benefit 4': ('B15', 'not in pig'),                                    # 4
+    'FeatureBenefit 5': ('B16', 'not in pig'),                                    # 5
+    **{f'Feature/Benefit {i}': (f'B{17+i}', 'not in pig') for i in range(6, 11)}  # 6-10
 }
-SEO_BULLET_MAPPINGS = {f'SEO Enhanced Bullets {i}': (f'C{10+i}', 'not in pig') for i in range(1, 11)}
+SEO_BULLET_MAPPINGS = {f'SEO Enhanced Bullets {i}': (f'C{11+i}', 'not in pig') for i in range(1, 11)}
 
 
 # Combine all mappings
