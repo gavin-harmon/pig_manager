@@ -61,7 +61,7 @@ FIELD_MAPPINGS = {
 }
 
 # Generate dynamic mappings for additional fields
-BULLET_MAPPINGS = {f'Bullet Copy {i}': (f'b{10+i}', 'not in pig') for i in range(1, 11)}
+BULLET_MAPPINGS = {f'Bullet Copy {i}': (f'A{11+i}', 'not in pig') for i in range(1, 11)}
 # Define Feature/Benefit mappings with special handling for 3 and 5
 FEATURE_BENEFIT_MAPPINGS = {
     **{f'Feature/Benefit {i}': (f'B{10+i}', 'not in pig') for i in range(1, 3)},  # 1-2
