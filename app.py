@@ -109,6 +109,29 @@ def initialize_session_state():
         st.session_state.sas_token = None
 
 
+def normalize_line_breaks_for_salsify(df):
+    """Normalize line breaks to LF only (Unix style) for Salsify compatibility"""
+    for col in df.select_dtypes(include=['object']).columns:
+        df[col] = df[col].astype(str)
+        
+        # First handle any existing encoded line break patterns
+        df[col] = df[col].str.replace('*x000D**x000A*', '\n', regex=False)  # CRLF with asterisks
+        df[col] = df[col].str.replace('_x000D__x000A_', '\n', regex=False)  # CRLF with underscores
+        df[col] = df[col].str.replace('*x000D*', '\n', regex=False)         # CR with asterisks
+        df[col] = df[col].str.replace('*x000A*', '\n', regex=False)         # LF with asterisks
+        df[col] = df[col].str.replace('_x000D_', '\n', regex=False)         # CR with underscores
+        df[col] = df[col].str.replace('_x000A_', '\n', regex=False)         # LF with underscores
+        
+        # Then normalize all line breaks to LF only (what Salsify likely expects)
+        df[col] = df[col].str.replace('\r\n', '\n', regex=False)  # Windows CRLF to LF
+        df[col] = df[col].str.replace('\r', '\n', regex=False)    # Mac CR to LF
+        
+        # Clean up
+        df[col] = df[col].replace('nan', '')
+    
+    return df
+
+
 def get_blob_service_client(sas_token):
     """Create BlobServiceClient using SAS token"""
     return BlobServiceClient(
@@ -330,7 +353,7 @@ def show_sidebar(con=None):
 
                 st.divider()
                 excel_buffer = io.BytesIO()
-                st.session_state.preview_df.to_excel(excel_buffer, index=False, engine='openpyxl')
+                st.session_state.preview_df.to_excel(excel_buffer, index=False, engine='xlsxwriter')
                 excel_buffer.seek(0)
                 
                 st.download_button(
@@ -669,7 +692,7 @@ def process_pig_file(uploaded_file, con):
         df = pd.read_excel(
             uploaded_file,
             header=None,  # This is crucial!
-            engine='openpyxl'
+            engine='xlsxwriter'
         )
 
         # Initialize output data with default values
@@ -721,7 +744,7 @@ def show_upload_interface(con):
             # Show file preview before processing (ONLY ONCE)
             with st.expander("View PIG File", expanded=False):
                 st.info("Viewing uploaded file content. Verify the data before processing.")
-                preview_df = pd.read_excel(file_to_process, header=None, engine='openpyxl')
+                preview_df = pd.read_excel(file_to_process, header=None, engine='xlsxwriter')
                 preview_df = preview_df.replace(['_x000D_'],[''])
                 st.dataframe(preview_df)
                 file_to_process.seek(0)  # Reset file pointer after reading
@@ -1324,7 +1347,7 @@ def upload_to_salsify(con, sas_token, display_df):
         # Step 4: Create Excel file in memory
         progress_container.info("Creating combined Excel file...")
         excel_buffer = io.BytesIO()
-        merged_df.to_excel(excel_buffer, index=False, engine='openpyxl')
+        merged_df.to_excel(excel_buffer, index=False, engine='xlsxwriter')
         excel_buffer.seek(0)
         
         # Step 5: Create backup of existing file in Azure
