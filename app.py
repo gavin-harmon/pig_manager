@@ -354,6 +354,7 @@ def show_sidebar(con=None):
                 st.divider()
                 excel_buffer = io.BytesIO()
                 st.session_state.preview_df.to_excel(excel_buffer, index=False, engine='xlsxwriter')
+                
                 excel_buffer.seek(0)
                 
                 st.download_button(
@@ -692,7 +693,6 @@ def process_pig_file(uploaded_file, con):
         df = pd.read_excel(
             uploaded_file,
             header=None,  # This is crucial!
-            engine='xlsxwriter'
         )
 
         # Initialize output data with default values
@@ -744,7 +744,7 @@ def show_upload_interface(con):
             # Show file preview before processing (ONLY ONCE)
             with st.expander("View PIG File", expanded=False):
                 st.info("Viewing uploaded file content. Verify the data before processing.")
-                preview_df = pd.read_excel(file_to_process, header=None, engine='xlsxwriter')
+                preview_df = pd.read_excel(file_to_process, header=None)
                 preview_df = preview_df.replace(['_x000D_'],[''])
                 st.dataframe(preview_df)
                 file_to_process.seek(0)  # Reset file pointer after reading
